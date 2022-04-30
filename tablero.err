@@ -1,0 +1,13 @@
+>>> Warning 203 "tablero.c" Line 40(1,1): Condition always TRUE
+>>> Warning 205 "tablero.c" Line 157(1,1): Unsigned variable is never less than zero
+>>> Warning 205 "tablero.c" Line 159(1,1): Unsigned variable is never less than zero
+>>> Warning 216 "tablero.c" Line 188(1,2): Interrupts disabled during call to prevent re-entrancy:  (dec_uni)
+>>> Warning 202 "C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero.h" Line 50(20,26): Variable never used:   min_up
+>>> Warning 202 "C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero.h" Line 50(32,40): Variable never used:   min_down
+>>> Warning 202 "C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero.h" Line 50(46,52): Variable never used:   sec_up
+>>> Warning 202 "C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero.h" Line 50(58,66): Variable never used:   sec_down
+>>> Warning 202 "C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero.h" Line 53(15,24): Variable never used:   input_pin
+>>> Warning 202 "C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero.h" Line 53(26,36): Variable never used:   output_pin
+      Memory usage:   ROM=8%      RAM=11% - 18%
+      0 Errors,  10 Warnings.
+Build Successful.

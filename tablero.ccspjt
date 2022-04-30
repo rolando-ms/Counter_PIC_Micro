@@ -1,0 +1,61 @@
+[PROJECT]
+Target=tablero.hex
+Processor_Text=PIC16F887
+CCSVerions=5.008
+Compiler=PCM
+Development_Mode=
+ToolSuite=CCS
+CCSVersion=5.008
+[Target Data]
+FileList=tablero.c
+BuildTool=C-COMPILER
+OptionString=+FM
+AdditionalOptionString=
+BuildRequired=1
+[Directories]
+Include=C:\Program Files (x86)\PICC\Devices\;C:\Program Files (x86)\PICC\Drivers\;C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\;C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\C:\Program Files (x86)\PICC\Devices\;C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\C:\Program Files (x86)\PICC\Devices\C:\Program Files (x86)\PICC\Devices\;C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\C:\Program Files (x86)\PICC\Devices\C:\Program Files (x86)\PICC\Devices\C:\Program Files (x86)\PICC\Devices\
+Library=
+LinkerScript=
+[C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero]
+Type=4
+[mru-list]
+1=tablero.c
+[Opened Files]
+1=tablero.c
+2=..\tablero.h
+3=
+4=lcd.c
+5=..\..\..\..\..\..\..\..\Program Files (x86)\PICC\Devices\18F4520.h
+6=
+[defines]
+enabled=0
+chip=1
+D1=
+V1=
+[fileformats]
+forcecoff=1
+debug=4
+error=2
+object=0
+list=0
+scratch=0
+sta=1
+tre=1
+allerrors=1
+allwarnings=1
+stayupne=3
+stayupoe=0
+[tablero.c]
+Type=4
+Path=
+FileList=
+BuildTool=
+OptionString=
+AdditionalOptionString=
+[Windows]
+0=0000 %S 0 0 796 451 3 0
+[CompilerVersion]
+Fixed=
+[Units]
+Count=1
+1=tablero (main)

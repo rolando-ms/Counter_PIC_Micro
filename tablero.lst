@@ -1,0 +1,916 @@
+CCS PCM C Compiler, Version 5.008, 5967               23-Dec-15 18:50
+
+               Filename:   C:\Users\rolixman1\Desktop\New folder\uanl\tareas\11_Lab\tablero\tablero2\tablero.lst
+
+               ROM used:   637 words (8%)
+                           Largest free fragment is 2048
+               RAM used:   39 (11%) at main() level
+                           65 (18%) worst case
+               Stack used: 6 locations (3 in main + 3 for interrupts)
+               Stack size: 8
+
+*
+0000:  MOVLW  02
+0001:  MOVWF  0A
+0002:  GOTO   228
+0003:  NOP
+0004:  MOVWF  7F
+0005:  SWAPF  03,W
+0006:  CLRF   03
+0007:  MOVWF  21
+0008:  MOVF   0A,W
+0009:  MOVWF  20
+000A:  CLRF   0A
+000B:  MOVF   04,W
+000C:  MOVWF  22
+000D:  MOVF   77,W
+000E:  MOVWF  23
+000F:  MOVF   78,W
+0010:  MOVWF  24
+0011:  MOVF   79,W
+0012:  MOVWF  25
+0013:  MOVF   7A,W
+0014:  MOVWF  26
+0015:  BCF    03.7
+0016:  BCF    03.5
+0017:  MOVLW  8C
+0018:  MOVWF  04
+0019:  BTFSS  00.0
+001A:  GOTO   01D
+001B:  BTFSC  0C.0
+001C:  GOTO   02E
+001D:  MOVF   22,W
+001E:  MOVWF  04
+001F:  MOVF   23,W
+0020:  MOVWF  77
+0021:  MOVF   24,W
+0022:  MOVWF  78
+0023:  MOVF   25,W
+0024:  MOVWF  79
+0025:  MOVF   26,W
+0026:  MOVWF  7A
+0027:  MOVF   20,W
+0028:  MOVWF  0A
+0029:  SWAPF  21,W
+002A:  MOVWF  03
+002B:  SWAPF  7F,F
+002C:  SWAPF  7F,W
+002D:  RETFIE
+002E:  BCF    0A.3
+002F:  BCF    0A.4
+0030:  GOTO   075
+.................... #include <tablero.h> 
+.................... //#include <18F4520.h> 
+.................... #include <16F887.h> 
+.................... //////// Standard Header file for the PIC16F887 device //////////////// 
+.................... #device PIC16F887 
+0031:  MOVF   5A,W
+0032:  CLRF   78
+0033:  SUBWF  59,W
+0034:  BTFSC  03.0
+0035:  GOTO   039
+0036:  MOVF   59,W
+0037:  MOVWF  77
+0038:  GOTO   045
+0039:  CLRF   77
+003A:  MOVLW  08
+003B:  MOVWF  5B
+003C:  RLF    59,F
+003D:  RLF    77,F
+003E:  MOVF   5A,W
+003F:  SUBWF  77,W
+0040:  BTFSC  03.0
+0041:  MOVWF  77
+0042:  RLF    78,F
+0043:  DECFSZ 5B,F
+0044:  GOTO   03C
+0045:  RETURN
+....................  
+.................... #list 
+....................  
+.................... //#device ADC=16 
+....................  
+.................... #FUSES   HS,NOMCLR,NOPUT,NOWRT,NOWDT,NOBROWNOUT 
+.................... #FUSES   INTRC_IO 
+.................... #use delay(internal=8M) 
+*
+00AD:  MOVLW  44
+00AE:  MOVWF  04
+00AF:  BCF    03.7
+00B0:  MOVF   00,W
+00B1:  BTFSC  03.2
+00B2:  GOTO   0C0
+00B3:  MOVLW  02
+00B4:  MOVWF  78
+00B5:  CLRF   77
+00B6:  DECFSZ 77,F
+00B7:  GOTO   0B6
+00B8:  DECFSZ 78,F
+00B9:  GOTO   0B5
+00BA:  MOVLW  97
+00BB:  MOVWF  77
+00BC:  DECFSZ 77,F
+00BD:  GOTO   0BC
+00BE:  DECFSZ 00,F
+00BF:  GOTO   0B3
+00C0:  RETURN
+....................  
+.................... // Switches 
+.................... #define  pin_secup   PIN_B0 
+.................... #define  pin_secdown PIN_B1 
+.................... #define  pin_minup   PIN_B2 
+.................... #define  pin_mindown PIN_B3 
+....................  
+.................... // Test switches (LED outputs) 
+.................... //#define  pin_out  PIN_B4 
+.................... //#define  pin_out2 PIN_B5 
+.................... //#define  pin_out3 PIN_B6 
+.................... //#define  pin_out4 PIN_B7 
+....................  
+.................... // Enable display pins 
+.................... #define  disp_min_dec   PIN_A3 
+.................... #define  disp_min_uni   PIN_A2 
+.................... #define  disp_sec_dec   PIN_A1 
+.................... #define  disp_sec_uni   PIN_A0 
+....................  
+.................... // Pin to set time 
+.................... #define  set_time PIN_B4 
+....................  
+.................... // Delay time for displays 
+.................... #define  delay_time  1 
+....................  
+.................... /* Timer feed from formula  
+.................... T(seg)   =  (4/Fosc) *  Prescaler   *  (65536 - TMR1) 
+.................... 1(seg)   =  (4/2Mhz) *  8           *  (65536 - TMR1) => TMR1 = 3036 
+.................... */ 
+.................... #define  timer_feed  3036 
+....................  
+.................... //#use standard_io(d) 
+....................  
+.................... /* Function prototypes */ 
+.................... //void debouncing(pin_mask, out_pin,int* incre); 
+.................... void debouncing(pin_mask, int* incre); 
+.................... void incre_decre(int* options, unsigned int* min, unsigned int* sec); 
+.................... void dec_uni(int* value, int* dec, int* uni); 
+.................... void set_time_func(); 
+.................... void displays(); 
+....................  
+.................... // Global variables 
+.................... int increment = 0, min_up = 0, min_down = 0, sec_up = 0, sec_down = 0, 
+.................... option = 0, dec_min = 0, uni_min = 0, dec_sec = 0, uni_sec = 0, timer_counter = 0; 
+.................... unsigned int minutes = 0, seconds = 0; 
+.................... unsigned char input_pin, output_pin; 
+.................... // Common cathode (a,b,...,g - pin0, pin1,...,pin6) 
+.................... //int segments[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F 
+.................... //0x6F}; 
+.................... //Common Anode (a,b,...,g - pin0, pin1,...,pin6) 
+.................... int segments[10] = {0x40, 0x79, 0x24, 0x30, 0x19, 0x12, 0x02, 0x78, 0x00 
+.................... 0x10}; 
+*
+024F:  MOVLW  40
+0250:  BCF    03.6
+0251:  MOVWF  37
+0252:  MOVLW  79
+0253:  MOVWF  38
+0254:  MOVLW  24
+0255:  MOVWF  39
+0256:  MOVLW  30
+0257:  MOVWF  3A
+0258:  MOVLW  19
+0259:  MOVWF  3B
+025A:  MOVLW  12
+025B:  MOVWF  3C
+025C:  MOVLW  02
+025D:  MOVWF  3D
+025E:  MOVLW  78
+025F:  MOVWF  3E
+0260:  CLRF   3F
+0261:  MOVLW  10
+0262:  MOVWF  40
+....................  
+....................  
+.................... /*********Timer 1 interruption*************/ 
+.................... #int_TIMER1       // Timer 1 interruption 
+.................... void TIMER1_isr(void)  //Function 
+.................... { 
+....................    timer_counter++; 
+*
+0075:  INCF   32,F
+....................    if((input(set_time) == 0) && (timer_counter == 4))  // If switch is off 
+0076:  BSF    03.5
+0077:  BSF    06.4
+0078:  BCF    03.5
+0079:  BTFSC  06.4
+007A:  GOTO   0A0
+007B:  MOVF   32,W
+007C:  SUBLW  04
+007D:  BTFSS  03.2
+007E:  GOTO   0A0
+....................    { 
+....................       if(seconds == 0) 
+007F:  MOVF   34,F
+0080:  BTFSS  03.2
+0081:  GOTO   095
+....................       { 
+....................          if(minutes > 0) 
+0082:  MOVF   33,F
+0083:  BTFSC  03.2
+0084:  GOTO   093
+....................          { 
+....................             minutes--; 
+0085:  DECF   33,F
+....................             seconds = 60; 
+0086:  MOVLW  3C
+0087:  MOVWF  34
+....................             dec_uni(&minutes, &dec_min, &uni_min); 
+0088:  CLRF   51
+0089:  MOVLW  33
+008A:  MOVWF  50
+008B:  CLRF   53
+008C:  MOVLW  2E
+008D:  MOVWF  52
+008E:  CLRF   55
+008F:  MOVLW  2F
+0090:  MOVWF  54
+0091:  CALL   046
+....................          } 
+0092:  GOTO   095
+....................          else{ 
+....................             seconds = 1; 
+0093:  MOVLW  01
+0094:  MOVWF  34
+....................          } 
+....................       } 
+....................       seconds--; 
+0095:  DECF   34,F
+....................       dec_uni(&seconds, &dec_sec, &uni_sec); 
+0096:  CLRF   51
+0097:  MOVLW  34
+0098:  MOVWF  50
+0099:  CLRF   53
+009A:  MOVLW  30
+009B:  MOVWF  52
+009C:  CLRF   55
+009D:  MOVLW  31
+009E:  MOVWF  54
+009F:  CALL   046
+....................    } 
+....................    if(timer_counter >= 4) timer_counter = 0; 
+00A0:  MOVF   32,W
+00A1:  SUBLW  03
+00A2:  BTFSS  03.0
+00A3:  CLRF   32
+....................    set_timer1(timer_feed);   // Feed TMR1 
+00A4:  CLRF   0E
+00A5:  MOVLW  0B
+00A6:  MOVWF  0F
+00A7:  MOVLW  DC
+00A8:  MOVWF  0E
+00A9:  BCF    0C.0
+00AA:  BCF    0A.3
+00AB:  BCF    0A.4
+00AC:  GOTO   01D
+.................... } 
+.................... /********************************************/ 
+....................  
+.................... void main() 
+*
+0228:  MOVF   03,W
+0229:  ANDLW  1F
+022A:  MOVWF  03
+022B:  MOVLW  71
+022C:  BSF    03.5
+022D:  MOVWF  0F
+022E:  MOVF   0F,W
+022F:  BCF    03.5
+0230:  CLRF   28
+0231:  CLRF   29
+0232:  CLRF   2A
+0233:  CLRF   2B
+0234:  CLRF   2C
+0235:  CLRF   2D
+0236:  CLRF   2E
+0237:  CLRF   2F
+0238:  CLRF   30
+0239:  CLRF   31
+023A:  CLRF   32
+023B:  CLRF   33
+023C:  CLRF   34
+023D:  MOVLW  FF
+023E:  MOVWF  41
+023F:  BSF    03.5
+0240:  BSF    03.6
+0241:  MOVF   09,W
+0242:  ANDLW  C0
+0243:  MOVWF  09
+0244:  BCF    03.6
+0245:  BCF    1F.4
+0246:  BCF    1F.5
+0247:  MOVLW  00
+0248:  BSF    03.6
+0249:  MOVWF  08
+024A:  BCF    03.5
+024B:  CLRF   07
+024C:  CLRF   08
+024D:  CLRF   09
+024E:  BCF    03.7
+.................... { 
+....................    setup_oscillator(OSC_8MHZ|OSC_INTRC); 
+*
+0263:  MOVLW  71
+0264:  BSF    03.5
+0265:  MOVWF  0F
+0266:  MOVF   0F,W
+....................    setup_timer_1(T1_INTERNAL | T1_DIV_BY_8);    // Internal = timer; External = counter; Prescaler = 8 
+0267:  MOVLW  35
+0268:  BCF    03.5
+0269:  MOVWF  10
+....................    set_timer1(timer_feed);                      // Reload of Timer 1 
+026A:  CLRF   0E
+026B:  MOVLW  0B
+026C:  MOVWF  0F
+026D:  MOVLW  DC
+026E:  MOVWF  0E
+....................    enable_interrupts(int_TIMER1);               // Enables Timer 1 
+026F:  BSF    03.5
+0270:  BSF    0C.0
+....................    enable_interrupts(global);                   // Enables general interruption 
+0271:  MOVLW  C0
+0272:  BCF    03.5
+0273:  IORWF  0B,F
+....................     
+....................    port_b_pullups(TRUE); 
+0274:  MOVLW  01
+0275:  BSF    03.5
+0276:  MOVWF  15
+0277:  BCF    01.7
+....................     
+....................    while(1) 
+....................    { 
+....................       set_time_func(); 
+0278:  BCF    03.5
+0279:  GOTO   115
+....................       displays(); 
+027A:  CALL   0C1
+027B:  GOTO   279
+....................    } 
+.................... } 
+....................  
+027C:  SLEEP
+.................... // Function to set time 
+.................... void set_time_func() 
+*
+0115:  CLRF   42
+0116:  CLRF   43
+.................... { 
+....................    int i = 0, limit = 0; 
+....................    if(input(set_time)) 
+0117:  BSF    03.5
+0118:  BSF    06.4
+0119:  BCF    03.5
+011A:  BTFSS  06.4
+011B:  GOTO   225
+....................       { 
+....................          // Debouncing functions for switches 
+....................          if (input(pin_secup))    
+011C:  BSF    03.5
+011D:  BSF    06.0
+011E:  BCF    03.5
+011F:  BTFSS  06.0
+0120:  GOTO   124
+....................          { 
+....................             option = 1; 
+0121:  MOVLW  01
+0122:  MOVWF  2D
+....................             increment = 1; 
+0123:  MOVWF  28
+....................             //input_pin = pin_secup; 
+....................             //debouncing(pin_secup, &increment); 
+....................             //output_pin = pin_out; 
+....................          } 
+....................          if (input(pin_secdown)) 
+0124:  BSF    03.5
+0125:  BSF    06.1
+0126:  BCF    03.5
+0127:  BTFSS  06.1
+0128:  GOTO   12D
+....................          { 
+....................             option = 2; 
+0129:  MOVLW  02
+012A:  MOVWF  2D
+....................             increment = 1; 
+012B:  MOVLW  01
+012C:  MOVWF  28
+....................             //input_pin = pin_secdown; 
+....................             //debouncing(pin_secdown, &increment); 
+....................             //output_pin = pin_out2; 
+....................          } 
+....................          if (input(pin_minup)) 
+012D:  BSF    03.5
+012E:  BSF    06.2
+012F:  BCF    03.5
+0130:  BTFSS  06.2
+0131:  GOTO   136
+....................          { 
+....................             option = 3; 
+0132:  MOVLW  03
+0133:  MOVWF  2D
+....................             increment = 1; 
+0134:  MOVLW  01
+0135:  MOVWF  28
+....................             //input_pin = pin_minup; 
+....................             //debouncing(pin_minup, &increment); 
+....................             //output_pin = pin_out3; 
+....................          } 
+....................          if (input(pin_mindown)) 
+0136:  BSF    03.5
+0137:  BSF    06.3
+0138:  BCF    03.5
+0139:  BTFSS  06.3
+013A:  GOTO   13F
+....................          { 
+....................             option = 4; 
+013B:  MOVLW  04
+013C:  MOVWF  2D
+....................             increment = 1; 
+013D:  MOVLW  01
+013E:  MOVWF  28
+....................             //input_pin = pin_mindown; 
+....................             //debouncing(pin_mindown, &increment); 
+....................             //output_pin = pin_out4; 
+....................          } 
+....................           
+....................          //debouncing(input_pin,output_pin,&increment); 
+....................          //debouncing(input_pin, &increment); 
+....................           
+....................          if (increment == 1) 
+013F:  DECFSZ 28,W
+0140:  GOTO   225
+....................          { 
+....................             increment = 0;  // Reset variable 
+0141:  CLRF   28
+....................             incre_decre(&option, &minutes, &seconds); 
+0142:  CLRF   45
+0143:  MOVLW  2D
+0144:  MOVWF  44
+0145:  CLRF   47
+0146:  MOVLW  33
+0147:  MOVWF  46
+0148:  CLRF   49
+0149:  MOVLW  34
+014A:  MOVWF  48
+....................             /* 
+....................             // Incrementing or decrementing variables 
+....................             if (option == 1) seconds = seconds + 1; 
+....................             else if (option == 2) seconds = seconds - 1; 
+....................             else if (option == 3) minutes = minutes + 1; 
+....................             else if (option == 4) minutes = minutes - 1; 
+....................              
+....................             // Setting limits 
+....................             if (seconds < 0)   seconds = 59; 
+....................             if (seconds > 59)  seconds = 0; 
+....................             if (minutes < 0)   minutes = 99; 
+....................             if (minutes > 99)  minutes = 0;   
+....................             */ 
+....................             dec_uni(&minutes, &dec_min, &uni_min); 
+*
+01FE:  CLRF   51
+01FF:  MOVLW  33
+0200:  MOVWF  50
+0201:  CLRF   53
+0202:  MOVLW  2E
+0203:  MOVWF  52
+0204:  CLRF   55
+0205:  MOVLW  2F
+0206:  MOVWF  54
+0207:  CALL   046
+0208:  BTFSC  27.7
+0209:  BSF    0B.7
+020A:  CLRF   27
+020B:  BTFSC  0B.7
+020C:  BSF    27.7
+020D:  BCF    0B.7
+....................             //dec_min = minutes / 10; 
+....................             //uni_min = minutes % 10; 
+....................             dec_uni(&seconds, &dec_sec, &uni_sec); 
+020E:  CLRF   51
+020F:  MOVLW  34
+0210:  MOVWF  50
+0211:  CLRF   53
+0212:  MOVLW  30
+0213:  MOVWF  52
+0214:  CLRF   55
+0215:  MOVLW  31
+0216:  MOVWF  54
+0217:  CALL   046
+0218:  BTFSC  27.7
+0219:  BSF    0B.7
+....................             //dec_sec = seconds / 10; 
+....................             //uni_sec = seconds % 10; 
+....................              
+....................             limit = 330 / (delay_time * 4); 
+021A:  MOVLW  52
+021B:  MOVWF  43
+....................             for(i=1;i<=limit;i++) 
+021C:  MOVLW  01
+021D:  MOVWF  42
+021E:  MOVF   42,W
+021F:  SUBWF  43,W
+0220:  BTFSS  03.0
+0221:  GOTO   225
+....................             { 
+....................                displays(); 
+0222:  CALL   0C1
+0223:  INCF   42,F
+0224:  GOTO   21E
+....................             } 
+....................             //delay_ms(250); // To avoid multiple switch readings 
+....................          } 
+....................       } 
+0225:  BCF    0A.3
+0226:  BCF    0A.4
+0227:  GOTO   27A (RETURN)
+.................... } 
+....................  
+.................... /* 
+.................... // Debouncing function applied to switches 
+.................... void debouncing(in_mask, out_mask, int* incre) 
+.................... { 
+....................    delay_ms(10); 
+....................    if (input(in_mask)) 
+....................    { 
+....................       *incre = 1; 
+....................       output_high(out_mask); 
+....................    } 
+....................    else 
+....................       output_low(out_mask); 
+....................    //return(incre,up_down); 
+.................... }*/ 
+....................  
+.................... /* 
+.................... // Debouncing function applied to switches 
+.................... void debouncing(in_mask, int* incre) 
+.................... { 
+....................    delay_ms(10); 
+....................    if (input(in_mask))  *incre = 1; 
+.................... }*/ 
+....................  
+....................  
+.................... void incre_decre(int* options, unsigned int* min, unsigned int* sec) 
+.................... { 
+....................    // Incrementing or decrementing variables 
+....................    if (*options == 1) *sec = *sec + 1; 
+*
+014B:  MOVF   45,W
+014C:  MOVWF  7A
+014D:  MOVF   44,W
+014E:  MOVWF  04
+014F:  BCF    03.7
+0150:  BTFSC  7A.0
+0151:  BSF    03.7
+0152:  DECFSZ 00,W
+0153:  GOTO   16C
+0154:  MOVF   49,W
+0155:  MOVWF  7A
+0156:  MOVF   48,W
+0157:  MOVWF  4A
+0158:  MOVF   7A,W
+0159:  MOVWF  4B
+015A:  MOVF   49,W
+015B:  MOVWF  7A
+015C:  MOVF   48,W
+015D:  MOVWF  04
+015E:  BCF    03.7
+015F:  BTFSC  7A.0
+0160:  BSF    03.7
+0161:  MOVLW  01
+0162:  ADDWF  00,W
+0163:  MOVWF  4C
+0164:  MOVF   4A,W
+0165:  MOVWF  04
+0166:  BCF    03.7
+0167:  BTFSC  4B.0
+0168:  BSF    03.7
+0169:  MOVF   4C,W
+016A:  MOVWF  00
+016B:  GOTO   1CC
+....................    else if (*options == 2) *sec = *sec - 1; 
+016C:  MOVF   45,W
+016D:  MOVWF  7A
+016E:  MOVF   44,W
+016F:  MOVWF  04
+0170:  BCF    03.7
+0171:  BTFSC  7A.0
+0172:  BSF    03.7
+0173:  MOVF   00,W
+0174:  SUBLW  02
+0175:  BTFSS  03.2
+0176:  GOTO   18F
+0177:  MOVF   49,W
+0178:  MOVWF  7A
+0179:  MOVF   48,W
+017A:  MOVWF  4A
+017B:  MOVF   7A,W
+017C:  MOVWF  4B
+017D:  MOVF   49,W
+017E:  MOVWF  7A
+017F:  MOVF   48,W
+0180:  MOVWF  04
+0181:  BCF    03.7
+0182:  BTFSC  7A.0
+0183:  BSF    03.7
+0184:  MOVLW  01
+0185:  SUBWF  00,W
+0186:  MOVWF  4C
+0187:  MOVF   4A,W
+0188:  MOVWF  04
+0189:  BCF    03.7
+018A:  BTFSC  4B.0
+018B:  BSF    03.7
+018C:  MOVF   4C,W
+018D:  MOVWF  00
+018E:  GOTO   1CC
+....................    else if (*options == 3) *min = *min + 1; 
+018F:  MOVF   45,W
+0190:  MOVWF  7A
+0191:  MOVF   44,W
+0192:  MOVWF  04
+0193:  BCF    03.7
+0194:  BTFSC  7A.0
+0195:  BSF    03.7
+0196:  MOVF   00,W
+0197:  SUBLW  03
+0198:  BTFSS  03.2
+0199:  GOTO   1B2
+019A:  MOVF   47,W
+019B:  MOVWF  7A
+019C:  MOVF   46,W
+019D:  MOVWF  4A
+019E:  MOVF   7A,W
+019F:  MOVWF  4B
+01A0:  MOVF   47,W
+01A1:  MOVWF  7A
+01A2:  MOVF   46,W
+01A3:  MOVWF  04
+01A4:  BCF    03.7
+01A5:  BTFSC  7A.0
+01A6:  BSF    03.7
+01A7:  MOVLW  01
+01A8:  ADDWF  00,W
+01A9:  MOVWF  4C
+01AA:  MOVF   4A,W
+01AB:  MOVWF  04
+01AC:  BCF    03.7
+01AD:  BTFSC  4B.0
+01AE:  BSF    03.7
+01AF:  MOVF   4C,W
+01B0:  MOVWF  00
+01B1:  GOTO   1CC
+....................    else if (*options == 4) *min = *min - 1; 
+01B2:  MOVF   45,W
+01B3:  MOVWF  7A
+01B4:  MOVF   44,W
+01B5:  MOVWF  04
+01B6:  BCF    03.7
+01B7:  BTFSC  45.0
+01B8:  BSF    03.7
+01B9:  MOVF   00,W
+01BA:  SUBLW  04
+01BB:  BTFSS  03.2
+01BC:  GOTO   1CC
+01BD:  MOVF   46,W
+01BE:  MOVWF  04
+01BF:  BCF    03.7
+01C0:  BTFSC  47.0
+01C1:  BSF    03.7
+01C2:  MOVLW  01
+01C3:  SUBWF  00,W
+01C4:  MOVWF  4C
+01C5:  MOVF   46,W
+01C6:  MOVWF  04
+01C7:  BCF    03.7
+01C8:  BTFSC  47.0
+01C9:  BSF    03.7
+01CA:  MOVF   4C,W
+01CB:  MOVWF  00
+....................     
+....................    // Setting limits 
+....................    if (*sec < 0)   *sec = 59; 
+01CC:  MOVF   48,W
+01CD:  MOVWF  04
+01CE:  BCF    03.7
+01CF:  BTFSC  49.0
+01D0:  BSF    03.7
+....................    if (*sec > 59)  *sec = 0; 
+01D1:  MOVF   49,W
+01D2:  MOVWF  7A
+01D3:  MOVF   48,W
+01D4:  MOVWF  04
+01D5:  BCF    03.7
+01D6:  BTFSC  7A.0
+01D7:  BSF    03.7
+01D8:  MOVF   00,W
+01D9:  SUBLW  3B
+01DA:  BTFSC  03.0
+01DB:  GOTO   1E2
+01DC:  MOVF   48,W
+01DD:  MOVWF  04
+01DE:  BCF    03.7
+01DF:  BTFSC  49.0
+01E0:  BSF    03.7
+01E1:  CLRF   00
+....................    if (*min < 0)   *min = 99; 
+01E2:  MOVF   47,W
+01E3:  MOVWF  7A
+01E4:  MOVF   46,W
+01E5:  MOVWF  04
+01E6:  BCF    03.7
+01E7:  BTFSC  7A.0
+01E8:  BSF    03.7
+....................    if (*min > 99)  *min = 0;    
+01E9:  MOVF   47,W
+01EA:  MOVWF  7A
+01EB:  MOVF   46,W
+01EC:  MOVWF  04
+01ED:  BCF    03.7
+01EE:  BTFSC  47.0
+01EF:  BSF    03.7
+01F0:  MOVF   00,W
+01F1:  SUBLW  63
+01F2:  BTFSC  03.0
+01F3:  GOTO   1FA
+01F4:  MOVF   46,W
+01F5:  MOVWF  04
+01F6:  BCF    03.7
+01F7:  BTFSC  47.0
+01F8:  BSF    03.7
+01F9:  CLRF   00
+01FA:  CLRF   27
+01FB:  BTFSC  0B.7
+01FC:  BSF    27.7
+01FD:  BCF    0B.7
+.................... } 
+....................  
+.................... // Storing tens and units in its corresponding variables 
+.................... void dec_uni(int* value, int* dec, int* uni) 
+.................... { 
+....................    *dec = *value / 10; 
+*
+0046:  MOVF   52,W
+0047:  MOVWF  56
+0048:  MOVF   53,W
+0049:  MOVWF  57
+004A:  MOVF   51,W
+004B:  MOVWF  7A
+004C:  MOVF   50,W
+004D:  MOVWF  04
+004E:  BCF    03.7
+004F:  BTFSC  51.0
+0050:  BSF    03.7
+0051:  MOVF   00,W
+0052:  MOVWF  59
+0053:  MOVLW  0A
+0054:  MOVWF  5A
+0055:  CALL   031
+0056:  MOVF   56,W
+0057:  MOVWF  04
+0058:  BCF    03.7
+0059:  BTFSC  57.0
+005A:  BSF    03.7
+005B:  MOVF   78,W
+005C:  MOVWF  00
+....................    *uni = *value % 10; 
+005D:  MOVF   54,W
+005E:  MOVWF  56
+005F:  MOVF   55,W
+0060:  MOVWF  57
+0061:  MOVF   51,W
+0062:  MOVWF  7A
+0063:  MOVF   50,W
+0064:  MOVWF  04
+0065:  BCF    03.7
+0066:  BTFSC  51.0
+0067:  BSF    03.7
+0068:  MOVF   00,W
+0069:  MOVWF  59
+006A:  MOVLW  0A
+006B:  MOVWF  5A
+006C:  CALL   031
+006D:  MOVF   56,W
+006E:  MOVWF  04
+006F:  BCF    03.7
+0070:  BTFSC  57.0
+0071:  BSF    03.7
+0072:  MOVF   77,W
+0073:  MOVWF  00
+0074:  RETURN
+.................... } 
+....................  
+.................... // Multiplexing of 7 segment displays with delay 
+.................... void displays() 
+.................... { 
+....................    output_c(segments[uni_sec]); 
+*
+00C1:  MOVLW  37
+00C2:  ADDWF  31,W
+00C3:  MOVWF  04
+00C4:  BCF    03.7
+00C5:  MOVF   00,W
+00C6:  MOVWF  44
+00C7:  MOVLW  00
+00C8:  MOVWF  41
+00C9:  BSF    03.5
+00CA:  CLRF   07
+00CB:  BCF    03.5
+00CC:  MOVF   44,W
+00CD:  MOVWF  07
+....................    output_a(0x01); 
+00CE:  BSF    03.5
+00CF:  CLRF   05
+00D0:  MOVLW  01
+00D1:  BCF    03.5
+00D2:  MOVWF  05
+....................    delay_ms(delay_time); 
+00D3:  MOVWF  44
+00D4:  CALL   0AD
+....................     
+....................    output_c(segments[dec_sec]); 
+00D5:  MOVLW  37
+00D6:  ADDWF  30,W
+00D7:  MOVWF  04
+00D8:  BCF    03.7
+00D9:  MOVF   00,W
+00DA:  MOVWF  44
+00DB:  MOVLW  00
+00DC:  MOVWF  41
+00DD:  BSF    03.5
+00DE:  CLRF   07
+00DF:  BCF    03.5
+00E0:  MOVF   44,W
+00E1:  MOVWF  07
+....................    output_a(0x02); 
+00E2:  BSF    03.5
+00E3:  CLRF   05
+00E4:  MOVLW  02
+00E5:  BCF    03.5
+00E6:  MOVWF  05
+....................    delay_ms(delay_time); 
+00E7:  MOVLW  01
+00E8:  MOVWF  44
+00E9:  CALL   0AD
+....................     
+....................    output_c(segments[uni_min]); 
+00EA:  MOVLW  37
+00EB:  ADDWF  2F,W
+00EC:  MOVWF  04
+00ED:  BCF    03.7
+00EE:  MOVF   00,W
+00EF:  MOVWF  44
+00F0:  MOVLW  00
+00F1:  MOVWF  41
+00F2:  BSF    03.5
+00F3:  CLRF   07
+00F4:  BCF    03.5
+00F5:  MOVF   44,W
+00F6:  MOVWF  07
+....................    output_a(0x04); 
+00F7:  BSF    03.5
+00F8:  CLRF   05
+00F9:  MOVLW  04
+00FA:  BCF    03.5
+00FB:  MOVWF  05
+....................    delay_ms(delay_time); 
+00FC:  MOVLW  01
+00FD:  MOVWF  44
+00FE:  CALL   0AD
+....................     
+....................    output_c(segments[dec_min]); 
+00FF:  MOVLW  37
+0100:  ADDWF  2E,W
+0101:  MOVWF  04
+0102:  BCF    03.7
+0103:  MOVF   00,W
+0104:  MOVWF  44
+0105:  MOVLW  00
+0106:  MOVWF  41
+0107:  BSF    03.5
+0108:  CLRF   07
+0109:  BCF    03.5
+010A:  MOVF   44,W
+010B:  MOVWF  07
+....................    output_a(0x08); 
+010C:  BSF    03.5
+010D:  CLRF   05
+010E:  MOVLW  08
+010F:  BCF    03.5
+0110:  MOVWF  05
+....................    delay_ms(delay_time); 
+0111:  MOVLW  01
+0112:  MOVWF  44
+0113:  CALL   0AD
+0114:  RETURN
+.................... } 
+
+Configuration Fuses:
+   Word  1: 2CD4   INTRC_IO NOWDT NOPUT NOMCLR NOPROTECT NOCPD NOBROWNOUT IESO FCMEN NOLVP NODEBUG
+   Word  2: 3FFF   BORV40 NOWRT
